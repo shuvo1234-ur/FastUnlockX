@@ -23,8 +23,14 @@
 @property(readonly, nonatomic) SBDashBoardCombinedListViewController *combinedListViewController;
 @end
 
-@interface SBDashBoardViewController
+@interface SBLockScreenViewControllerBase : UIViewController
+@end
+
+@interface SBDashBoardViewController : SBLockScreenViewControllerBase
+@property(assign, nonatomic) BOOL fux_alreadyAuthenticated;
+@property(nonatomic, getter=isAuthenticated) BOOL authenticated;
 @property(retain, nonatomic) SBDashBoardMainPageContentViewController *mainPageContentViewController;
+- (BOOL)isInScreenOffMode;
 @end
 
 @interface SBLockScreenManager : NSObject
