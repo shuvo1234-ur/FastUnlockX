@@ -38,3 +38,12 @@
 - (void)tapToWakeControllerDidRecognizeWakeGesture:(id)arg1;
 - (void)lockScreenViewControllerRequestsUnlock;
 @end
+
+@interface SBUIFlashlightController : NSObject
+
++(id)sharedInstance;
+
+-(NSInteger)level;
+
+@end
+
