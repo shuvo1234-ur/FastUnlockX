@@ -14,14 +14,14 @@
 
 - (void)viewWillAppear:(BOOL)animated {
 
-	%orig;
+    %orig;
 
     /*
     * There are two ways the lockscreen is shown. When waking the device and also when
     * pulling the notification center  down. When viewWillAppear: is called we can determine
     * if the presentation was manual since the controller will already be authenticated.
     */
-	self.fux_alreadyAuthenticated = self.authenticated;
+    self.fux_alreadyAuthenticated = self.authenticated;
 }
 
 - (void)setAuthenticated:(BOOL)authenticated {
@@ -41,6 +41,17 @@
                  * If there is any content we likely want to check it out.
                  */
                 BOOL haveContent = self.mainPageContentViewController.combinedListViewController.hasContent;
+
+                if(self.isShowingMediaControls) {
+                    /*
+                    * Media controls count as lockscreen content, for that reason manually check if media
+                    * controls are showing and prevent unlocking if user requests excemption
+                    */
+
+                    if([(id)CFPreferencesCopyAppValue(CFSTR("RequestsMediaExcemption"), CFSTR("com.cpdigitaldarkroom.fastunlockx")) boolValue]) {
+                        return;
+                    }
+                }
 
                 /*
                  * Flashlight Levels
@@ -64,14 +75,31 @@
 
 - (void)setInScreenOffMode:(BOOL)screenOff {
 
-	%orig;
+    %orig;
 
     /*
      * Reset fux_alreadyAuthenticated. If screen goes off we are not authenticated anymore.
      */
-	self.fux_alreadyAuthenticated = !screenOff;
+     self.fux_alreadyAuthenticated = !screenOff;
 }
 
+%end
+
+%hook SBDashBoardPearlUnlockBehavior
+//
+-(void)_handlePearlFailure {
+
+    %orig;
+
+    if([(id)CFPreferencesCopyAppValue(CFSTR("FUXEnabled"), CFSTR("com.cpdigitaldarkroom.fastunlockx")) boolValue]) {
+        if([(id)CFPreferencesCopyAppValue(CFSTR("RequestsAutoPearlRetry"), CFSTR("com.cpdigitaldarkroom.fastunlockx")) boolValue]) {
+            [[NSClassFromString(@"SBUIBiometricResource") sharedInstance] noteScreenDidTurnOff];
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                [[NSClassFromString(@"SBUIBiometricResource") sharedInstance] noteScreenWillTurnOn];
+            });
+        }
+    }
+}
 %end
 
 static void setupDefaults () {
@@ -84,8 +112,13 @@ static void setupDefaults () {
     }
 
     /*
-     * Do the same as above just for the other settings
+     * Do the same as above just for the other settings. Only change is here I am setting them as enabled by default.
      */
+
+    if(!CFBridgingRelease(CFPreferencesCopyAppValue(CFSTR("RequestsAutoPearlRetry"), CFSTR("com.cpdigitaldarkroom.fastunlockx")))) {
+        CFPreferencesSetAppValue((CFStringRef)@"RequestsAutoPearlRetry", (CFPropertyListRef)@1, CFSTR("com.cpdigitaldarkroom.fastunlockx"));
+    }
+
     if(!CFBridgingRelease(CFPreferencesCopyAppValue(CFSTR("RequestsFlastlightExcemption"), CFSTR("com.cpdigitaldarkroom.fastunlockx")))) {
         CFPreferencesSetAppValue((CFStringRef)@"RequestsFlastlightExcemption", (CFPropertyListRef)@1, CFSTR("com.cpdigitaldarkroom.fastunlockx"));
     }
@@ -94,13 +127,12 @@ static void setupDefaults () {
         CFPreferencesSetAppValue((CFStringRef)@"RequestsMediaExcemption", (CFPropertyListRef)@1, CFSTR("com.cpdigitaldarkroom.fastunlockx"));
     }
 
-    if(!CFBridgingRelease(CFPreferencesCopyAppValue(CFSTR("RequestsNotificationExcemption"), CFSTR("com.cpdigitaldarkroom.fastunlockx")))) {
-        CFPreferencesSetAppValue((CFStringRef)@"RequestsNotificationExcemption", (CFPropertyListRef)@1, CFSTR("com.cpdigitaldarkroom.fastunlockx"));
+    if(!CFBridgingRelease(CFPreferencesCopyAppValue(CFSTR("RequestsContentExcemption"), CFSTR("com.cpdigitaldarkroom.fastunlockx")))) {
+        CFPreferencesSetAppValue((CFStringRef)@"RequestsContentExcemption", (CFPropertyListRef)@1, CFSTR("com.cpdigitaldarkroom.fastunlockx"));
     }
 
 }
 
 %ctor {
-
     setupDefaults();
 }

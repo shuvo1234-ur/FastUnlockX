@@ -1,7 +1,7 @@
 //
 //
 //    CPDDFUXRootListController.h
-//    Created by Juan Carlos Perez <carlos@jcarlosperez.me> 03/14/2017
+//    Created by Juan Carlos Perez <carlos@jcarlosperez.me> 03/14/2018.
 //    © CP Digital Darkroom <admin@cpdigitaldarkroom.com> All rights reserved.
 //
 //
@@ -74,6 +74,18 @@
 
   PSSpecifier *specifier;
 
+  specifier = groupSpecifier(@"");
+  setFooterForSpec(@"Thanks gilshahar7 for providing the code for this feature. Rock on!");
+  [_removeableSpecs addObject:specifier];
+
+  specifier = subtitleSwitchCellWithName(@"FaceID Auto Retry");
+  [specifier setProperty:NSClassFromString(@"PSSubtitleSwitchTableCell") forKey:@"cellClass"];
+  [specifier setProperty:@"Recommended" forKey:@"cellSubtitleText"];
+  [specifier setProperty:@"com.cpdigitaldarkroom.fastunlockx" forKey:@"defaults"];
+  [specifier setProperty:@"com.cpdigitaldarkroom.fastunlockx.settings" forKey:@"PostNotification"];
+  setKeyForSpec(@"RequestsAutoPearlRetry");
+  [_removeableSpecs addObject:specifier];
+
   specifier = groupSpecifier(@"Disable for");
   [_removeableSpecs addObject:specifier];
 
@@ -91,6 +103,14 @@
   [specifier setProperty:@"com.cpdigitaldarkroom.fastunlockx" forKey:@"defaults"];
   [specifier setProperty:@"com.cpdigitaldarkroom.fastunlockx.settings" forKey:@"PostNotification"];
   setKeyForSpec(@"RequestsContentExcemption");
+  [_removeableSpecs addObject:specifier];
+
+  specifier = subtitleSwitchCellWithName(@"Media Controls");
+  [specifier setProperty:NSClassFromString(@"PSSubtitleSwitchTableCell") forKey:@"cellClass"];
+  [specifier setProperty:@"Recommended" forKey:@"cellSubtitleText"];
+  [specifier setProperty:@"com.cpdigitaldarkroom.fastunlockx" forKey:@"defaults"];
+  [specifier setProperty:@"com.cpdigitaldarkroom.fastunlockx.settings" forKey:@"PostNotification"];
+  setKeyForSpec(@"RequestsMediaExcemption");
   [_removeableSpecs addObject:specifier];
 
 

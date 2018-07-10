@@ -1,7 +1,7 @@
 //
 //
 //    CPDDFUXSpecifierMacros.h
-//    Created by Juan Carlos Perez <carlos@jcarlosperez.me> 03/14/2017
+//    Created by Juan Carlos Perez <carlos@jcarlosperez.me> 03/14/2018.
 //    © CP Digital Darkroom <admin@cpdigitaldarkroom.com> All rights reserved.
 //
 //

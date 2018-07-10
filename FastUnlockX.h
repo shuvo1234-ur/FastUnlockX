@@ -6,6 +6,12 @@
 //  Copyright © 2017 CP Digital Darkroom. All rights reserved.
 //
 
+@interface SBUIBiometricResource : NSObject
++ (id)sharedInstance;
+- (void)noteScreenDidTurnOff;
+- (void)noteScreenWillTurnOn;
+@end
+
 @interface SBDashBoardViewControllerBase : UIViewController
 @end
 
@@ -23,6 +29,10 @@
 @property(readonly, nonatomic) SBDashBoardCombinedListViewController *combinedListViewController;
 @end
 
+@interface SBDashBoardPearlUnlockBehavior : NSObject
+-(void)mesaUnlockTriggerFired:(id)arg1 ;
+@end
+
 @interface SBLockScreenViewControllerBase : UIViewController
 @end
 
@@ -30,7 +40,9 @@
 @property(assign, nonatomic) BOOL fux_alreadyAuthenticated;
 @property(nonatomic, getter=isAuthenticated) BOOL authenticated;
 @property(retain, nonatomic) SBDashBoardMainPageContentViewController *mainPageContentViewController;
+- (BOOL)isShowingMediaControls;
 - (BOOL)isInScreenOffMode;
+- (BOOL)biometricUnlockBehavior:(id)arg1 requestsUnlock:(id)arg2 withFeedback:(id)arg3 ;
 @end
 
 @interface SBLockScreenManager : NSObject
