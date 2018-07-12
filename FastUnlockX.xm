@@ -45,12 +45,12 @@
                 if(self.isShowingMediaControls) {
                     /*
                     * Media controls count as lockscreen content, for that reason manually check if media
-                    * controls are showing and prevent unlocking if user requests excemption
+                    * controls are showing and prevent unlocking if user requests disabling for media
                     */
 
                     if([(id)CFPreferencesCopyAppValue(CFSTR("RequestsMediaExcemption"), CFSTR("com.cpdigitaldarkroom.fastunlockx")) boolValue]) {
                         return;
-                    }
+                    } else haveContent = NO;
                 }
 
                 /*
