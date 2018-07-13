@@ -89,7 +89,7 @@
   specifier = groupSpecifier(@"Disable for");
   [_removeableSpecs addObject:specifier];
 
-  specifier = subtitleSwitchCellWithName(@"Flaslight On");
+  specifier = subtitleSwitchCellWithName(@"Flashlight On");
   [specifier setProperty:NSClassFromString(@"PSSubtitleSwitchTableCell") forKey:@"cellClass"];
   [specifier setProperty:@"Recommended" forKey:@"cellSubtitleText"];
   [specifier setProperty:@"com.cpdigitaldarkroom.fastunlockx" forKey:@"defaults"];

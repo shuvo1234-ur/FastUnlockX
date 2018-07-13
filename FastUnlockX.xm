@@ -8,6 +8,10 @@
 
 #import "FastUnlockX.h"
 
+BOOL valueForPreference(NSString *prefKey) {
+    return [(id)CFPreferencesCopyAppValue((CFStringRef)prefKey, CFSTR("com.cpdigitaldarkroom.fastunlockx")) boolValue];
+}
+
 %hook SBDashBoardViewController
 
 %property (assign, nonatomic) BOOL fux_alreadyAuthenticated;
@@ -24,16 +28,23 @@
     self.fux_alreadyAuthenticated = self.authenticated;
 }
 
+/*
+ * Use this to catch when FaceID successfully matches
+ */
 - (void)setAuthenticated:(BOOL)authenticated {
 
     %orig;
 
     if(authenticated) {
 
-        if([(id)CFPreferencesCopyAppValue(CFSTR("FUXEnabled"), CFSTR("com.cpdigitaldarkroom.fastunlockx")) boolValue]) {
+        /*
+         * If FUX is enabled
+         */
+        if(settingsValueFor(@"FUXEnabled")) {
 
             /*
-             * If already authenticated we manually invoked the cover sheet and want to be there. Don't unlock.
+             * Only continue with FUX if not already authenticated
+             * If already authenticated we manually invoked the cover sheet and want to be there.
              */
             if(!self.fux_alreadyAuthenticated) {
 
@@ -42,37 +53,37 @@
                  * 0 = Off
                  * 1-4 are equal to the amount of flashlight level steps enabled from the control center module
                  */
-                BOOL flashlightOn = ([[NSClassFromString(@"SBUIFlashlightController") sharedInstance] level] > 0);
-
-                BOOL requestsFlashlightExcemption = [(id)CFPreferencesCopyAppValue(CFSTR("RequestsFlastlightExcemption"), CFSTR("com.cpdigitaldarkroom.fastunlockx")) boolValue];
-
-                if(flashlightOn && requestsFlashlightExcemption) return;
+                if(([[NSClassFromString(@"SBUIFlashlightController") sharedInstance] level] > 0)) {
+                    if(settingsValueFor(@"RequestsFlastlightExcemption")) return;
+                }
 
                 /*
                  * If there is any content we likely want to check it out.
                  */
                 if(self.mainPageContentViewController.combinedListViewController.hasContent) {
-
+                    /*
+                     * Access the notification list view controller
+                     */
                     NCNotificationListViewController *listController = [self.mainPageContentViewController.combinedListViewController valueForKey:@"_listViewController"];
 
                     if([listController hasVisibleContent]) {
-                        if([(id)CFPreferencesCopyAppValue(CFSTR("RequestsContentExcemption"), CFSTR("com.cpdigitaldarkroom.fastunlockx")) boolValue]) {
-                            return;
-                        }
+                        /*
+                        * If notifications are showing and user requests disabling for them, stop here
+                        */
+                        if(settingsValueFor(@"RequestsContentExcemption")) return;
                     }
 
                     if(self.isShowingMediaControls) {
                         /*
-                        * Media controls count as lockscreen content, for that reason manually check if media
-                        * controls are showing and prevent unlocking if user requests disabling for media
+                        * If media controls are showing and user requests disabling for them, stop here
                         */
-                        if([(id)CFPreferencesCopyAppValue(CFSTR("RequestsMediaExcemption"), CFSTR("com.cpdigitaldarkroom.fastunlockx")) boolValue]) {
-                            return;
-                        }
+                        if(settingsValueFor(@"RequestsMediaExcemption")) return;
                     }
 
                 }
-
+                /*
+                 * We're authenticated and have no reason to disable unlocking, send unlock request
+                 */
                 [[NSClassFromString(@"SBLockScreenManager") sharedInstance] lockScreenViewControllerRequestsUnlock];
             }
         }
@@ -92,13 +103,20 @@
 %end
 
 %hook SBDashBoardPearlUnlockBehavior
-//
+
 -(void)_handlePearlFailure {
 
     %orig;
 
-    if([(id)CFPreferencesCopyAppValue(CFSTR("FUXEnabled"), CFSTR("com.cpdigitaldarkroom.fastunlockx")) boolValue]) {
-        if([(id)CFPreferencesCopyAppValue(CFSTR("RequestsAutoPearlRetry"), CFSTR("com.cpdigitaldarkroom.fastunlockx")) boolValue]) {
+    if(settingsValueFor(@"FUXEnabled")) {
+        if(settingsValueFor(@"RequestsAutoPearlRetry")) {
+
+            /*
+             * If user requests retrying for pearl failure, call noteScreenDidTurnOff on SBUIBiometricResource
+             * and then noteScreenWillTurnOn after a short delay to trick it to rescan
+             *
+             * Thanks to gilshahar7 for sending me this part of code, he also mentioned to credit ipad_kid for his help
+             */
             [[NSClassFromString(@"SBUIBiometricResource") sharedInstance] noteScreenDidTurnOff];
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
                 [[NSClassFromString(@"SBUIBiometricResource") sharedInstance] noteScreenWillTurnOn];
