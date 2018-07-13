@@ -38,22 +38,6 @@
             if(!self.fux_alreadyAuthenticated) {
 
                 /*
-                 * If there is any content we likely want to check it out.
-                 */
-                BOOL haveContent = self.mainPageContentViewController.combinedListViewController.hasContent;
-
-                if(self.isShowingMediaControls) {
-                    /*
-                    * Media controls count as lockscreen content, for that reason manually check if media
-                    * controls are showing and prevent unlocking if user requests disabling for media
-                    */
-
-                    if([(id)CFPreferencesCopyAppValue(CFSTR("RequestsMediaExcemption"), CFSTR("com.cpdigitaldarkroom.fastunlockx")) boolValue]) {
-                        return;
-                    } else haveContent = NO;
-                }
-
-                /*
                  * Flashlight Levels
                  * 0 = Off
                  * 1-4 are equal to the amount of flashlight level steps enabled from the control center module
@@ -61,13 +45,35 @@
                 BOOL flashlightOn = ([[NSClassFromString(@"SBUIFlashlightController") sharedInstance] level] > 0);
 
                 BOOL requestsFlashlightExcemption = [(id)CFPreferencesCopyAppValue(CFSTR("RequestsFlastlightExcemption"), CFSTR("com.cpdigitaldarkroom.fastunlockx")) boolValue];
-                BOOL requestsContentExcemption = [(id)CFPreferencesCopyAppValue(CFSTR("RequestsContentExcemption"), CFSTR("com.cpdigitaldarkroom.fastunlockx")) boolValue];
 
                 if(flashlightOn && requestsFlashlightExcemption) return;
 
-                if((haveContent &! requestsContentExcemption) || !haveContent) {
-                    [[NSClassFromString(@"SBLockScreenManager") sharedInstance] lockScreenViewControllerRequestsUnlock];
+                /*
+                 * If there is any content we likely want to check it out.
+                 */
+                if(self.mainPageContentViewController.combinedListViewController.hasContent) {
+
+                    NCNotificationListViewController *listController = [self.mainPageContentViewController.combinedListViewController valueForKey:@"_listViewController"];
+
+                    if([listController hasVisibleContent]) {
+                        if([(id)CFPreferencesCopyAppValue(CFSTR("RequestsContentExcemption"), CFSTR("com.cpdigitaldarkroom.fastunlockx")) boolValue]) {
+                            return;
+                        }
+                    }
+
+                    if(self.isShowingMediaControls) {
+                        /*
+                        * Media controls count as lockscreen content, for that reason manually check if media
+                        * controls are showing and prevent unlocking if user requests disabling for media
+                        */
+                        if([(id)CFPreferencesCopyAppValue(CFSTR("RequestsMediaExcemption"), CFSTR("com.cpdigitaldarkroom.fastunlockx")) boolValue]) {
+                            return;
+                        }
+                    }
+
                 }
+
+                [[NSClassFromString(@"SBLockScreenManager") sharedInstance] lockScreenViewControllerRequestsUnlock];
             }
         }
     }

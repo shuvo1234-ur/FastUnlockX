@@ -6,6 +6,13 @@
 //  Copyright © 2017 CP Digital Darkroom. All rights reserved.
 //
 
+@interface NCNotificationListViewController : UICollectionViewController
+-(BOOL)hasVisibleContent;
+@end
+
+@interface NCNotificationCombinedListViewController : NCNotificationListViewController
+@end
+
 @interface SBUIBiometricResource : NSObject
 + (id)sharedInstance;
 - (void)noteScreenDidTurnOff;
@@ -21,7 +28,10 @@
 @interface SBDashBoardPageViewController : SBDashBoardPresentationViewController
 @end
 
-@interface SBDashBoardCombinedListViewController : SBDashBoardViewControllerBase
+@interface SBDashBoardCombinedListViewController : SBDashBoardViewControllerBase {
+	NCNotificationCombinedListViewController *_listViewController;
+}
+@property (nonatomic,retain) NSMutableOrderedSet * filteredNotificationRequests;
 @property(readonly, nonatomic) BOOL hasContent;
 @end
 
