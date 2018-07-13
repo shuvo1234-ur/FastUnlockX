@@ -8,7 +8,7 @@
 
 #import "FastUnlockX.h"
 
-BOOL valueForPreference(NSString *prefKey) {
+BOOL settingsValueFor(NSString *prefKey) {
     return [(id)CFPreferencesCopyAppValue((CFStringRef)prefKey, CFSTR("com.cpdigitaldarkroom.fastunlockx")) boolValue];
 }
 
