@@ -49,6 +49,21 @@ BOOL settingsValueFor(NSString *prefKey) {
             if(!self.fux_alreadyAuthenticated) {
 
                 /*
+                 * If a modal view is currently presented, this includes the passcode view, alarms, last mode
+                 * and probably more
+                 */
+                if(self.modalPresentationController) {
+                    for(id object in self.modalPresentationController.presentedViewControllers) {
+                        /*
+                         * If presenting a fullscreen notification, return since it's probably important
+                         */
+                        if([object isKindOfClass:NSClassFromString(@"SBDashBoardFullscreenNotificationViewController")]) {
+                            return;
+                        }
+                    }
+                }
+
+                /*
                  * Flashlight Levels
                  * 0 = Off
                  * 1-4 are equal to the amount of flashlight level steps enabled from the control center module

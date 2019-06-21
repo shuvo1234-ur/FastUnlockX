@@ -23,6 +23,7 @@
 @end
 
 @interface SBDashBoardPresentationViewController : SBDashBoardViewControllerBase
+@property (nonatomic,copy,readonly) NSArray * presentedViewControllers;
 @end
 
 @interface SBDashBoardPageViewController : SBDashBoardPresentationViewController
@@ -35,12 +36,22 @@
 @property(readonly, nonatomic) BOOL hasContent;
 @end
 
+@interface SBDashBoardModalViewControllerBase : SBDashBoardViewControllerBase
+@end
+
+@interface SBDashBoardFullscreenNotificationViewController : SBDashBoardModalViewControllerBase
+@property (nonatomic,copy,readonly) NSString * dashBoardIdentifier;
+@end
+
 @interface SBDashBoardMainPageContentViewController : SBDashBoardPageViewController
 @property(readonly, nonatomic) SBDashBoardCombinedListViewController *combinedListViewController;
 @end
 
 @interface SBDashBoardPearlUnlockBehavior : NSObject
 -(void)mesaUnlockTriggerFired:(id)arg1 ;
+@end
+
+@interface SBDashBoardModalPresentationViewController : SBDashBoardPresentationViewController
 @end
 
 @interface SBLockScreenViewControllerBase : UIViewController
@@ -50,6 +61,7 @@
 @property(assign, nonatomic) BOOL fux_alreadyAuthenticated;
 @property(nonatomic, getter=isAuthenticated) BOOL authenticated;
 @property(retain, nonatomic) SBDashBoardMainPageContentViewController *mainPageContentViewController;
+@property (nonatomic,retain) SBDashBoardModalPresentationViewController * modalPresentationController;
 - (BOOL)isShowingMediaControls;
 - (BOOL)isInScreenOffMode;
 - (BOOL)biometricUnlockBehavior:(id)arg1 requestsUnlock:(id)arg2 withFeedback:(id)arg3 ;
@@ -68,4 +80,3 @@
 -(NSInteger)level;
 
 @end
-

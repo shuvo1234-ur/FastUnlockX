@@ -6,6 +6,8 @@
 //
 //
 
+#import <Preferences/PSListController.h>
+
 @interface NSTask : NSObject
 
 - (id)init;
